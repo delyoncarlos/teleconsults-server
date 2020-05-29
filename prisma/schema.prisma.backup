@@ -1,0 +1,419 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// these are the tables that apparently we are going to need to this project
+
+model usergroups {
+  id        Int    @default(autoincrement()) @id
+  title     String @default("")
+  lft       Int    @default(0)
+  parent_id Int    @default(0)
+  rgt       Int    @default(0)
+
+  @@index([parent_id], name: "idx_usergroup_adjacency_lookup")
+  @@index([lft, rgt], name: "idx_usergroup_nested_set_lookup")
+  @@index([title], name: "idx_usergroup_title_lookup")
+  @@unique([parent_id, title], name: "idx_usergroup_parent_title_lookup")
+  @@map("jos_usergroups")
+
+}
+
+model usergroupMap {
+  group_id Int @default(0)
+  user_id  Int @default(0)
+
+  @@id([user_id, group_id])
+  @@map("jos_user_usergroup_map")
+
+}
+
+model answers {
+  aid                    Int       @default(autoincrement()) @id
+  CANTON                 String
+  PROVINCIA              String
+  COMENTARIOS_CC         String
+  ENFERCOD3C             String
+  ENFERCOD4C             String
+  ESPECIALIDAD           String
+  FECHA                  String
+  HOSPITAL               String
+  NOM_ESPECIALISTA       String
+  PD_PROPUESTAS          String
+  PLAN_EDUCA_PROPUESTO   String
+  PLAN_TERAPIA_PROPUESTO String
+  PRE_TEXT               String
+  DEF_TEXT               String
+
+  // not useful fields
+  user_id                Int? @default(value:0)
+  seg_dem                String? @default(value:"")
+  modified               DateTime? @default(now())
+  GUARDAR                String? @default(value:"")
+  hora_envio             String? @default(value:"")
+  DCOD3C                 String? @default(value:"")
+  DCOD4C                 String? @default(value:"")
+  ECG                    String? @default(value:"")
+  DATNO                  String? @default(value:"")
+  DATSI                  String? @default(value:"")
+  created                DateTime?  @default(now())
+  CODIGO2                String? @default(value:"")
+
+  @@map("jos_chronoforms_data_respuesta_tc")
+}
+
+model consults {
+  aid                   Int       @default(autoincrement()) @id
+  FECHA                 String
+  CANTON                String
+  PROVINCIA             String
+  ESPECIALIDAD_HOSPITAL String
+  MEDICO_ENVIA          String
+  ESP_SELECCION         String?
+  date_contestado       String?
+  MOTIVO_CONSULTA       String
+  UNIDAD_OPERATIVA      String
+
+  // not useful fields
+  ABDOMEN               String
+  ACTUALIZAR            String
+  AGREGAR               String
+  ALERGICOS             String
+  APELLIDO_PACIENTE     String
+  ASOCIADAS             String
+  ASPECTO_G             String
+  CABEZA                String
+  cargarD               String
+  CEDULA                String
+  CODIGO_TC             String
+  COMENTARIOS_PREGUNTAS String
+  comentario_nota       String
+  CORAZON               String
+  correo_esp            String
+  correo_rural          String
+  created               DateTime  @default(now())
+  CUELLO                String
+  DCOD3C                String
+  DCOD4C                String
+  DIAG_ADICIONAL        String
+  DOLOR_EVA             Int
+  ECG                   String
+  EDAD_ANOS             String
+  EG_LS                 String
+  ENFERCOD3C            String
+  ENFERCOD4C            String
+  ENFERMEDAD_ACTUAL     String
+  EXA_REALIZADOS        String
+  EXTREMIDADES          String
+  EX_NEUROL             String
+  FAMILIARES            String
+  file                  String
+  file1                 String
+  F_C                   String
+  F_R                   Int
+  GINECO_TEXT           String
+  hayasociadas          String
+  hora_envio            String
+  MEDICO_RECIBE         String
+  MODIFICAR             String
+  modified              DateTime?
+  NOMBRE_PACIENTE       String
+  nota_t                String
+  PAC_REG               String
+  PARROQUIA             String
+  PATOLOGICOS           String
+  perfil_pac            String
+  PERINE                String
+  PESO                  String
+  PIEL                  String
+  PULMONES              String
+  P_NATALES             String
+  QUIRURGICOS           String
+  REG_D                 String
+  seg_dem               String
+  SEXO                  String
+  TAD                   String
+  TALLA                 String
+  TAS                   String
+  TEMPERATURA           Int
+  TORAX_G               String
+  user_id               Int
+
+  @@map("jos_chronoforms_data_teleconsulta2")
+}
+
+model users {
+  id            Int      @default(autoincrement()) @id
+  email         String   @default("")
+  name          String   @default("")
+  password      String   @default("")
+  username      String   @default("") @unique
+
+  @@index([email], name: "email")
+  @@index([name], name: "idx_name")
+  @@index([username], name: "username")
+  @@map("jos_users")
+}
+
+model specialists {
+  CANTON        String
+  Cargo_Esp     String
+  CORREO        String
+  especialidad  String
+  ESPECIALIDAD2 String
+  GRUPO         String
+  HOSPITAL      String
+  id_medesp     Int    @default(autoincrement()) @id
+  id_user       Int
+  nom_medesp    String @unique
+  PROVINCIA     String
+  telefono      String
+
+  @@index([PROVINCIA, CANTON, HOSPITAL], name: "PROVINCIA")
+  @@index([especialidad], name: "especialidad")
+  @@map("vace_medicoespecialista")
+}
+
+model ills {
+  COD_3         String  @default("") @id
+  DESCRIPCION3C String?
+  @@map("vace_enfer3c")
+}
+
+model subIlls {
+  COD_4         String @id
+  DESCRIPCION4C String?
+  ENFER3C       String
+
+  @@index([ENFER3C], name: "ENFER3C")
+  @@map("vace_enfer4c")
+}
+
+//model vace_areasalud {
+//id_area  Int    @default(autoincrement()) @id
+//nom_area String @unique
+//}
+
+//model vace_attachments {
+//access         Int                        @default(1)
+//created        DateTime?
+//created_by     Int
+//description    String                     @default("")
+//display_name   String                     @default("")
+//download_count Int?                       @default(0)
+//filename       String
+//filename_sys   String
+//file_size      Int
+//file_type      String
+//icon_filename  String
+//id             Int                        @default(autoincrement()) @id
+//modified       DateTime?
+//modified_by    Int
+//parent_entity  String                     @default("article")
+//parent_id      Int?
+//parent_type    String                     @default("com_content")
+//state          Int                        @default(0)
+//uri_type       vace_attachments_uri_type? @default(file)
+//url            String                     @default("")
+//url_relative   Int                        @default(0)
+//url_valid      Int                        @default(0)
+//url_verify     Int                        @default(1)
+//user_field_1   String                     @default("")
+//user_field_2   String                     @default("")
+//user_field_3   String                     @default("")
+//}
+//
+//model vace_chronoforms_data_error_especialista {
+//cf_created     DateTime
+//cf_created_by  Int
+//cf_id          Int      @default(autoincrement()) @id
+//cf_ipaddress   String
+//cf_modified    DateTime
+//cf_modified_by Int
+//cf_uid         String
+//cf_user_id     Int
+//codigo_msj     String
+//cod_rep        String
+//ERROR_ESP      String
+//estado         String?
+//file_adjunto   String
+//hora_envio_msj String
+//MEDICO_RECIBE  String
+//}
+//
+//model vace_chronoforms_data_error_tc {
+//cf_created     DateTime
+//cf_created_by  Int
+//cf_id          Int      @default(autoincrement()) @id
+//cf_ipaddress   String
+//cf_modified    DateTime
+//cf_modified_by Int
+//cf_uid         String
+//cf_user_id     Int
+//codigo_msj     String
+//cod_rep        String
+//ERROR_TC       String
+//estado         String?
+//file_adjunto   String
+//hora_envio_msj String
+//MEDICO_ENVIA   String
+//}
+//
+//model vace_chronoforms_data_respuesta_tc {
+//back                   String
+//CANTON                 String
+//cf_created             DateTime
+//cf_created_by          Int
+//cf_id                  Int      @default(autoincrement()) @id
+//cf_ipaddress           String
+//cf_modified            DateTime
+//cf_modified_by         Int
+//cf_uid                 String
+//cf_user_id             Int
+//CIE_CK                 String
+//CIE_TEXT               String
+//CODIGO2                String
+//COMENTARIOS_CC         String
+//DATNO                  Int?
+//DATSI                  String?
+//DCOD3C                 String
+//DCOD4C                 String
+//DEF_CK                 String
+//DEF_TEXT               String
+//ENFERCOD3C             String
+//ENFERCOD4C             String
+//ESPECIALIDAD           String
+//FECHA                  String
+//GUARDAR                String
+//hora_envio             String
+//HOSPITAL               String
+//NOM_ESPECIALISTA       String
+//PD_PROPUESTAS          String
+//PLAN_EDUCA_PROPUESTO   String
+//PLAN_TERAPIA_PROPUESTO String
+//PRE_CK                 String
+//PRE_TEXT               String
+//PROVINCIA              String
+//reset                  String
+//seg_dem                String
+//}
+//
+//model vace_directivo {
+//ciudad_dir   String
+//coreo_dir    String
+//id_directivo Int    @default(autoincrement()) @id
+//id_user      Int
+//instutucion  String
+//nombre_dir   String
+//telefono     String
+//}
+
+
+//model vace_especialidad {
+//id_esp  Int    @default(autoincrement()) @id
+//nivel   String
+//nom_esp String @unique
+//
+//@@index([nivel], name: "nivel")
+//}
+
+
+//model vace_medico_rural {
+//canton_rural    String
+//cargo_rural     String
+//cedula          String
+//cod_rural       String
+//correo_rural    String
+//id_medrural     Int    @default(autoincrement()) @id
+//id_user         Int
+//nom_rural       String
+//parroquia_rural String
+//provincia_rural String
+//telefono        String
+//tiempo_activo   String
+//u_operativa     String
+//
+//@@index([correo_rural, provincia_rural, canton_rural, parroquia_rural, u_operativa], name: "correo_rural")
+//}
+//
+//model vace_paciente {
+//apellido_p     String
+//cedula         String
+//edad_anos      String
+//edad_meses     String
+//estado_civil_p String
+//estudios_p     String
+//factor_rh_p    String
+//F_NAC          String
+//grupo_sangre_p String
+//id_paciente    Int    @default(autoincrement()) @id
+//medico_rural   String
+//nombres_p      String
+//nom_paciente   String
+//ocupacion_p    String
+//raza_p         String
+//religion_p     String
+//resisdencia_p  String
+//sexo_p         String
+//}
+//
+//model vace_pais {
+//continente String
+//id_pais    Int    @default(autoincrement()) @id
+//pais       String @unique
+//
+//@@index([continente], name: "continente")
+//}
+//
+//model vace_parroquias {
+//canton        String
+//id_parroquia  Int    @default(autoincrement()) @id
+//nom_parroquia String @unique
+//
+//@@index([canton], name: "canton")
+//}
+//
+//model vace_provincias {
+//id_provincia Int    @default(autoincrement()) @id
+//nom_Pro      String @unique
+//pais         String
+//zona         String
+//
+//@@index([pais, zona], name: "pais")
+//@@index([zona], name: "zona")
+//}
+//
+//model vace_uoperativa {
+//area      String
+//id_UO     Int    @default(autoincrement()) @id
+//nom_UO    String @unique
+//parroquia String
+//
+//@@index([area], name: "area")
+//@@index([parroquia, area], name: "parroquia")
+//}
+//
+//model vace_uservisitas {
+//CARGO          String
+//fecha          DateTime
+//fecha_fin      DateTime
+//idsesion       String?
+//id_user        Int
+//id_UserVisitas Int      @default(autoincrement()) @id
+//nombre         String
+//}
+//
+//model vace_zonasalud {
+//id_zona     Int    @default(autoincrement()) @id
+//nombre_zona String @unique
+//}
+//
+//enum vace_attachments_uri_type {
+//file
+//url
+//}
