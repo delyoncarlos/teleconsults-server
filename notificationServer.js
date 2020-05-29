@@ -69,6 +69,6 @@ app.post(route + 'sendNotification', async function (req, res) {
     }, 4000);
 });
 
-app.listen(port, () => console.log(`📌 Push server listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`📌 Push server listening at http://18.217.185.213:${port}`))
 
 
